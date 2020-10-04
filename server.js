@@ -84,41 +84,28 @@ var connection = mysql.createConnection({
 //employee.manager_id = employee.id/name
 
 function allEmployees() {
-  let query = `SELECT *
-  FROM role 
-  RIGHT join department ON role.department_id = department.id
-  RIGHT JOIN employee ON employee.role_id = role.id 
-  ORDER BY employee.id; SELECT a.first_name, CONCAT(b.first_name, ' ', b.last_name) as manager
+  let query = `SELECT a.id, a.first_name, a.last_name, title, salary, name, CONCAT(b.first_name, ' ',b.last_name) as manager
   FROM employee as a
-  LEFT OUTER JOIN employee as b
-  ON a.manager_id = b.id; `
+  LEFT JOIN employee as b ON a.manager_id = b.id
+  INNER JOIN role ON a.role_id = role.id
+  INNER JOIN department ON role.department_id = department.id
+  ORDER by a.id;`
   connection.query(query, function(err, res){
     if (err) throw err;
     
-    //empty arrays to push to
+    //empty array to push to
     let mainArr = []
-    let managerArr = []
+   
+    // for (i = 0; i < res.length; i++) {
+    //    //aligning manager_id to item in managerArr to be able to push it to the mainArr  ----- here vvvv ------
+    //   mainArr.push([res[i].id, res[i].first_name, res[i].last_name, res[i].title, res[i].salary, res[i].name, res[i].manager]);
+    // }
 
-    //renaming responses to something friendlier to work with
-    let allRes = res[0]; // response from SELECT * from role and RIGHT JOINs
-    let empRes = res[1]; // response from SELECT * FROM employee concatenation
+    res.forEach(el => {
+      mainArr.push([el.id, el.first_name, el.last_name, el.title, el.salary, el.name, el.manager])
+    });
 
-    for (i = 0; i < empRes.length; i++){
-      if (!empRes[i].manager) {
-        empRes[i].manager = 'No reporting manager'; // If the value is null or empty, this string is assigned.
-        managerArr.push(empRes[i].manager);
-      } else {
-        managerArr.push(empRes[i].manager);
-
-      }
-    }
-  
-    for (i = 0; i < allRes.length; i++) {
-      allRes[i].manager_id = managerArr[i]; //aligning manager_id to item in managerArr to be able to push it to the mainArr  ----- here vvvv ------
-      mainArr.push([allRes[i].id, allRes[i].first_name, allRes[i].last_name, allRes[i].title, allRes[i].salary, allRes[i].name, allRes[i].manager_id]);
-    }
-
-              
+    console.log(' ');         
     console.table(['id', 'first_name', 'last_name', 'title', 'salary', 'department', 'manager_id'], mainArr);     
     start();
 
@@ -152,16 +139,30 @@ function allDeptartments() {
   });
 }
 
+//add manager names to array for selection
+// convert name to id of manager name.
 function addEmployee() {
-  connection.query("SELECT * FROM employee; SELECT * FROM role", function(err, res){
+  let query = `SELECT * 
+  FROM role
+  LEFT JOIN employee ON role.id = employee.role_id`;
+  //"SELECT * FROM employee; SELECT * FROM role"
+  connection.query(query, function(err, res){
     let roleArr = [];
+    let roleUnique = [];
+    
     let managerArr = ['None',];
-    res[0].forEach(el => {
-      managerArr.push(el.first_name + ' ' + el.last_name)
+
+    res.forEach(el => {
+      if (el.first_name) {
+        managerArr.push(el.first_name + ' ' + el.last_name)
+      }
     })
-    res[1].forEach(el => {
-      roleArr.push(el.title)
+    res.forEach(el => {
+      roleArr.push(el.title);
+      roleUnique = [...new Set(roleArr)]
     })
+
+    
     inquirer
     .prompt([
       {
@@ -178,53 +179,70 @@ function addEmployee() {
         type: 'list',
         message: "What is title of the new employee?",
         name: 'title',
-        choices: roleArr
+        choices: roleUnique
       },
       {
-        type: 'list',
+        type: 'rawlist',
         name: 'manager',
         message: 'Who does the new employee report to?',
-        choices: managerArr,
-        validate: function(res) {
-            if (this !== "None"){
-              return res
-            } else {
-            return res = ''
-            }
-          }
-        }
+        choices: managerArr
+      }
     ])
     .then((answer) =>{
-
+  
+      let manager;
       
-      connection.query("INSERT INTO employee SET ?", 
+      
+      //If the string value of answer.manager matches the concat value of res.first/last_name = manager is set the value of the id of the matched response.
+      for (i = 0; i < res.length; i++) {
+        if (answer.manager == res[i].first_name + ' ' + res[i].last_name){
+          console.log('Correct Manager Found ' + res[i].id+') ' + res[i].first_name + ' ' + res[i].last_name)
+          return addNewEmp(manager = res[i].id);           
+        } else if (answer.manager == "None"){
+          console.log('No Manager set, logging as null')
+          return addNewEmp(answer.manager = null);
+        } else {
+          console.log('Correct Manager not Found. Iterating through again.')
+        }
+      }
+        
+            
+      function addNewEmp(mgr) {
+        connection.query("INSERT INTO employee SET ?", 
       {
         first_name: answer.first_name,
         last_name: answer.last_name,
-        role_id: roleArr.indexOf(answer.title) + 1, //need to +1 to align with ID values that start at 1
-        manager_id: function(answer){
-          if (!managerArr.indexOf(answer.manager)){ //If index is 0 or empty, assign a value of null to be accepted by the database.
-            answer.manager = null;
-          } else {
-            managerArr.indexOf(answer.manager)
-          }
-          
-        }
+        role_id: roleUnique.indexOf(answer.title) + 1, //need to +1 to align with ID values that start at 1
+        manager_id: mgr
       },
       function(err,res){
         if (err) throw err;
         start();
       })
+      
+      }
     })
   });
 }
 
+
+
 function addRole() {
-  connection.query("SELECT * FROM role; SELECT * FROM department", function(err, res){
-    let choiceArr = [];
-    res[1].forEach(el => {
-      choiceArr.push(el.name)
-    })
+  let query = `SELECT role.id, title, salary, department.name 
+  FROM role
+  RIGHT JOIN department ON role.department_id = department.id;`
+  //"SELECT * FROM role; SELECT * FROM department"
+  connection.query(query, function(err, res){
+
+    let dept = [];
+    let uniqueDept = [];
+    //push each item to an array, and then push only the unique items to an array to remove duplicate values.
+    res.forEach((el) => {
+      dept.push(el.name);
+      uniqueDept = [...new Set(dept)]
+    });
+    
+       
     inquirer
     .prompt([
       {
@@ -238,10 +256,10 @@ function addRole() {
         name: 'roleSal'
       },
       {
-        type: 'list',
+        type: 'rawlist',
         message: 'Which department is this role in?',
         name: 'deptName',
-        choices: choiceArr
+        choices: uniqueDept
         
       }
     ])
@@ -250,7 +268,7 @@ function addRole() {
       {
         title: answer.roleName,
         salary: answer.roleSal,
-        department_id: choiceArr.indexOf(answer.deptName) + 1 //need to +1 to align with ID values that start at 1
+        department_id: uniqueDept.indexOf(answer.deptName) + 1 //need to +1 to align with ID values that start at 1
 
       },
       function(err,res){
@@ -291,4 +309,6 @@ function addDepartment() {
 // }
 
   
+
+
 
