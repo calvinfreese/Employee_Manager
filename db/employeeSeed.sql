@@ -44,8 +44,8 @@ VALUES
     ("Access Manager", 90000, 1),
     ("Access Analyst", 60000, 1),
     ("Sales Manager", 70000, 2),
-    ("Salesperson", 45000, 2),
-    ("HR Manager", 10000, 3),
+    ("Sales person", 45000, 2),
+    ("HR Manager", 100000, 3),
     ("HR Analyst", 72000, 3),
     ("Legal Analyst", 85000, 4);
 
@@ -58,15 +58,20 @@ VALUES
 ("Legal");
 
 
-SELECT employee.id, first_name, last_name, title, salary, name, manager_id
-FROM role 
-RIGHT JOIN department ON role.department_id = department.id 
-RIGHT JOIN employee ON employee.role_id = role.id 
-ORDER BY employee.id;
+-- View All 
+SELECT a.id, a.first_name, a.last_name, title, salary, name, CONCAT(b.first_name, ' ',b.last_name) as manager
+FROM employee as a
+LEFT JOIN employee as b ON a.manager_id = b.id
+INNER JOIN role ON a.role_id = role.id
+INNER JOIN department ON role.department_id = department.id
+ORDER by a.id;
 
-select a.first_name, CONCAT(b.first_name, ' ', b.last_name) as manager
-from employee as a
-left outer join employee as b
-on a.manager_id = b.id; 
+-- Add Role 
+SELECT role.id, title, salary, department.name 
+FROM role
+RIGHT JOIN department ON role.department_id = department.id;
 
-
+-- Add Employee
+SELECT role.id, role.title, employee.id, employee.first_name, employee.last_name, employee.manager_id
+FROM role
+LEFT JOIN employee ON role.id = employee.role_id;
