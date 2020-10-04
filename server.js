@@ -75,7 +75,7 @@ var connection = mysql.createConnection({
             addDepartment();
             break;
           case "Update employee role":
-            updateEmployee();
+            updateEmployeeRole();
             break;
         }
       });
@@ -190,7 +190,7 @@ function addEmployee() {
     ])
     .then((answer) =>{
   
-      let manager;
+      
       
       
       //If the string value of answer.manager matches the concat value of res.first/last_name = manager is set the value of the id of the matched response.
@@ -304,11 +304,76 @@ function addDepartment() {
  
 }
 
-// function updateEmployee() {
+function updateEmployeeRole() {
+  let query = `SELECT role.id, role.title, role.salary, employee.role_id, employee.first_name, employee.last_name, employee.manager_id
+  FROM role
+  LEFT JOIN employee ON role.id = employee.role_id
+  ORDER BY employee.id;`
+  connection.query(query, function(err, res){
+    let empl = [];
+    res.forEach(el => {
+      empl.push(`${el.first_name} ${el.last_name}`)
+    });
 
-// }
+    inquirer
+    .prompt([
+      {
+        type: 'rawlist',
+        name: "employee",
+        message: "Which employees role would you like to update?",
+        choices: empl
+      },
+      
+    ])
+     .then((answer) => {
+       let employeeToUpdate = res.filter((obj) => {
+          if ((`${obj.first_name} ${obj.last_name}`) === answer.employee) {
+            return obj.first_name
+          }
+        })
+       
+        console.log('employee id ', employeeToUpdate);
 
-  
+        connection.query('SELECT * FROM role', function(err, response){
+          let roles = [];
+          res.forEach(el => {
+            roles.push(el.title);
+          })
+          inquirer
+          .prompt([
+            {
+              type: 'rawlist',
+              message: `Which role is being assigned to ${answer.employee}`,
+              name: 'role',
+              choices: roles
+              
+            }
+          ])
+          .then((ans)=>{
+            let filteredRole = response.filter((obj) => {
+              if(obj.title === ans.role) {
+                return obj
+              }
+            })
+            console.log(filteredRole);
+            connection.query('UPDATE employee SET ? WHERE ?', [
+              {
+                role_id: filteredRole[0].id
+              },
+              {
+                first_name: employeeToUpdate[0].first_name
+              }
+            ])
+            start();
+          })
+        })
+      })
+    });
+}
+
+
+
+
 
 
 
