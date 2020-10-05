@@ -43,7 +43,7 @@ var connection = mysql.createConnection({
     inquirer
       .prompt({
         type: "rawlist",
-        message: "Would you like to do?",
+        message: "What would you like to do?",
         choices: [
           "View all employees.",
           "View all roles.",
@@ -87,7 +87,7 @@ var connection = mysql.createConnection({
           case "Update an employee's reporting manager.":
             updateEmployeeManager();
             break;
-          case 'Exit':
+          case 'Exit.':
             process.exit();
             
         }
