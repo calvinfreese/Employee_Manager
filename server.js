@@ -458,9 +458,9 @@ function updateEmployeeManager() {
       }
     ])
     .then((answer)=>{
-     
+        console.log(' '); //this is just purely for spacing
       if (answer.newMgr == answer.employeeToUpdate){
-        console.log('User can\'t report to themselves!');
+        console.log('Users can\'t report to themselves!');
         start();
       } else if (answer.newMgr == 'None'){
         let newManager = null;
