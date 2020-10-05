@@ -78,5 +78,5 @@ This assignment was provided by Trilogy Education Services. Code was developed b
 
 ## License
 
-[License](LICENSE.txt)
+[License](LICENSE)
 MIT &copy; 2020 Calvin Freese
