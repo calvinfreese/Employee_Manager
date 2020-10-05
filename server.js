@@ -41,7 +41,7 @@ var connection = mysql.createConnection({
   function start() {
     inquirer
       .prompt({
-        type: "list",
+        type: "rawlist",
         message: "Would you like to do?",
         choices: [
           "View all employees",
@@ -51,6 +51,8 @@ var connection = mysql.createConnection({
           "Add a role",
           "Add a department",
           "Update employee role",
+          "View employees by manager",
+          "Exit"
         ],
         name: "choice"
       })
@@ -77,6 +79,12 @@ var connection = mysql.createConnection({
           case "Update employee role":
             updateEmployeeRole();
             break;
+          case "View employees by manager":
+            viewByManager();
+            break;
+          case 'Exit':
+            process.exit();
+            
         }
       });
   }
@@ -371,7 +379,53 @@ function updateEmployeeRole() {
     });
 }
 
+function viewByManager() {
+  connection.query('SELECT * FROM employee', function(err, res){
+    let manager = [];
+    res.forEach(el => {
+      manager.push(`${el.first_name} ${el.last_name}`)
+    }) 
+    inquirer
+    .prompt([
+      {
+        type: 'rawlist',
+        message: "Select a manager",
+        name: 'mgr',
+        choices: manager
+      }
+    ])  
+    .then((answer)=>{
+      
+      let selectedManager = res.filter((obj)=>{
+        if((`${obj.first_name} ${obj.last_name}`) === answer.mgr) {
+          return obj.first_name
+        }
+      });
 
+      let displayArr = [];
+      let query = `SELECT a.id, a.first_name, a.last_name, CONCAT(b.first_name, ' ', b.last_name) as manager
+      FROM employee as a
+      LEFT JOIN employee as b ON a.manager_id = b.id 
+      WHERE a.manager_id = ?`;
+
+      connection.query(query, [selectedManager[0].id], function(err, response){
+        if (err) throw err;
+        response.forEach(el => {
+          displayArr.push([el.id, el.first_name, el.last_name, el.manager])
+        });
+        console.log(' ')
+        if (displayArr.length > 0){
+          console.table(['id', 'first_name', 'last_name', 'manager'], displayArr);
+        } else {
+          console.log(selectedManager[0].first_name + ' ' + selectedManager[0].last_name + ' has no direct reports.');
+          console.log(' ');
+        }
+        
+        start();
+      })
+    })
+  })
+}
 
 
 
