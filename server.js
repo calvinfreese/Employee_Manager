@@ -45,46 +45,46 @@ var connection = mysql.createConnection({
         type: "rawlist",
         message: "Would you like to do?",
         choices: [
-          "View all employees",
-          "View all roles",
-          "View all departments",
-          "Add an employee",
-          "Add a role",
-          "Add a department",
-          "Update employee role",
-          "Update an Employee's Manager",
-          "View employees by manager",          
-          "Exit"
+          "View all employees.",
+          "View all roles.",
+          "View all departments.",
+          "Add an employee.",
+          "Add a role.",
+          "Add a department.",
+          "Update employee's role.",
+          "Update an employee's reporting manager.",
+          "View employees by manager.",          
+          "Exit."
         ],
         name: "choice"
       })
       .then(function (answer) {
         switch (answer.choice) {
-          case "View all employees":
+          case "View all employees.":
             allEmployees();
             break;
-          case "View all roles":
+          case "View all roles.":
             allRoles();
             break;
-          case "View all departments":
+          case "View all departments.":
             allDeptartments();
             break;
-          case "Add an employee":
+          case "Add an employee.":
             addEmployee();
             break;
-          case "Add a role":
+          case "Add a role.":
             addRole();
             break;
-          case "Add a department":
+          case "Add a department.":
             addDepartment();
             break;
-          case "Update employee role":
+          case "Update employee's role.":
             updateEmployeeRole();
             break;
-          case "View employees by manager":
+          case "View employees by manager.":
             viewByManager();
             break;
-          case "Update an Employee's Manager":
+          case "Update an employee's reporting manager.":
             updateEmployeeManager();
             break;
           case 'Exit':
@@ -109,10 +109,6 @@ function allEmployees() {
     //empty array to push to
     let mainArr = [];
    
-    // for (i = 0; i < res.length; i++) {
-    //    //aligning manager_id to item in managerArr to be able to push it to the mainArr  ----- here vvvv ------
-    //   mainArr.push([res[i].id, res[i].first_name, res[i].last_name, res[i].title, res[i].salary, res[i].name, res[i].manager]);
-    // }
 
     res.forEach(el => {
       mainArr.push([el.id, el.first_name, el.last_name, el.title, el.salary, el.name, el.manager]);
@@ -326,10 +322,12 @@ function updateEmployeeRole() {
   ORDER BY employee.id;`;
   connection.query(query, function(err, res){
     let empl = [];
-    res.forEach(el => {
-      empl.push(`${el.first_name} ${el.last_name}`);
+    res.forEach((el) => {
+      if (el.first_name){
+        empl.push(`${el.first_name} ${el.last_name}`);
+      }
     });
-
+    
     inquirer
     .prompt([
       {
