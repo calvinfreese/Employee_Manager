@@ -1,0 +1,4 @@
+module.exports = {
+    user: "<ID>",
+    password: "<ID>"
+}

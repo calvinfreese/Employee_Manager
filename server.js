@@ -2,6 +2,7 @@ const inquirer = require('inquirer');
 const mysql = require('mysql');
 const figlet = require('figlet');
 const cTable = require('console.table');
+const credentials = require('./config');
 
 
 var connection = mysql.createConnection({
@@ -11,10 +12,10 @@ var connection = mysql.createConnection({
     port: 3306,
   
     // Your username
-    user: "",
+    user: credentials.user,
 
     // Your password
-    password: "",
+    password: credentials.password,
     database: "employee_db",
     multipleStatements: true
   });
@@ -114,11 +115,11 @@ function allEmployees() {
     // }
 
     res.forEach(el => {
-      mainArr.push([el.id, el.first_name, el.last_name, el.title, el.salary, el.name, e0l.manager]);
+      mainArr.push([el.id, el.first_name, el.last_name, el.title, el.salary, el.name, el.manager]);
     });
 
     console.log(' ');         
-    console.table(['id', 'first_name', 'last_name', 'title', 'salary', 'department', 'manager_id'], mainArr);     
+    console.table(['id', 'first_name', 'last_name', 'title', 'salary', 'department', 'manager'], mainArr);     
     start();
 
   });
