@@ -24,7 +24,7 @@ var connection = mysql.createConnection({
 
   connection.connect(function(err) {
     if (err) throw err;
-    console.log('connected!');
+    console.log('Connected to: ');
 
     figlet('Employee Manager', function(err, data) {
         if (err) {
@@ -118,7 +118,7 @@ function allEmployees() {
       mainArr.push([el.id, el.first_name, el.last_name, el.title, el.salary, el.name, el.manager]);
     });
 
-    console.log(' ');         
+    console.log(' '); //this is just purely for spacing         
     console.table(['id', 'first_name', 'last_name', 'title', 'salary', 'department', 'manager'], mainArr);     
     start();
 
@@ -133,6 +133,7 @@ function allRoles() {
     res.forEach(el => {
       arr.push([el.title, el.salary]);
     });
+    console.log(' '); //this is just purely for spacing
     console.table(['Title','Salary'], arr);
     start();
   });
@@ -147,6 +148,7 @@ function allDeptartments() {
     res.forEach(el => {
       arr.push([el.name]);
     });
+    console.log(' '); //this is just purely for spacing
     console.table(['Department'], arr);
     start();
   });
@@ -190,7 +192,7 @@ function addEmployee() {
         message: 'What is the Last Name of the new employee?'
       },
       {
-        type: 'list',
+        type: 'rawlist',
         message: "What is title of the new employee?",
         name: 'title',
         choices: roleUnique
@@ -228,6 +230,7 @@ function addEmployee() {
       },
       function(err,res){
         if (err) throw err;
+        console.log('New employee added.')
         start();
       });
       
@@ -285,6 +288,7 @@ function addRole() {
       },
       function(err,res){
         if (err) throw err;
+        console.log('New role added.')
         start();
       });
     });
@@ -308,6 +312,7 @@ function addDepartment() {
       },
       function(err,res){
         if (err) throw err;
+        console.log('New department added.')
         start();
       });
     });
@@ -341,9 +346,7 @@ function updateEmployeeRole() {
             return obj.first_name;
           }
         });
-       
-        console.log('employee id ', employeeToUpdate);
-
+      
         connection.query('SELECT * FROM role', function(err, response){
           let roles = [];
           res.forEach(el => {
@@ -365,7 +368,6 @@ function updateEmployeeRole() {
                 return obj;
               }
             });
-            console.log(filteredRole);
             connection.query('UPDATE employee SET ? WHERE ?', [
               {
                 role_id: filteredRole[0].id
@@ -373,8 +375,11 @@ function updateEmployeeRole() {
               {
                 first_name: employeeToUpdate[0].first_name
               }
-            ]);
-            start();
+            ], 
+            function(err, res){
+              console.log('Employee role updated.');  
+              start();
+            });
           });
         });
       });
@@ -415,12 +420,12 @@ function viewByManager() {
         response.forEach(el => {
           displayArr.push([el.id, el.first_name, el.last_name, el.manager]);
         });
-        console.log(' ')
+        console.log(' ') //this is just purely for spacing
         if (displayArr.length > 0){
           console.table(['id', 'first_name', 'last_name', 'manager'], displayArr);
         } else {
           console.log(selectedManager[0].first_name + ' ' + selectedManager[0].last_name + ' has no direct reports.');
-          console.log(' ');
+          console.log(' '); //this is just purely for spacing
         }
         
         start();
@@ -469,7 +474,6 @@ function updateEmployeeManager() {
       } else {
         let newManager = res.filter((obj) => (`${obj.first_name} ${obj.last_name}`) == answer.newMgr);
         let selectedEmployee = res.filter(obj => (`${obj.first_name} ${obj.last_name}`) == answer.employeeToUpdate);
-        console.log(newManager);
         let mgr = newManager[0].id;
         let selEmp = selectedEmployee[0].id;
        
@@ -486,6 +490,7 @@ function updateEmployeeManager() {
             }
           ], function(err, response){
             if (err) throw err;
+            console.log('Employee manager updated.');
             start();
           });
        } 
