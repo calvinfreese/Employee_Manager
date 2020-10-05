@@ -74,7 +74,8 @@ See [Screenshots](#Screenshots) for examples.
 ![Tour](./Assets/imgs/updateManager.gif)
 
 ## Credits
-This assignment was provided by Trilogy Education Services. Files `server.js`, `apiRouting.js`, and `htmlRouting.js` were created based on in class activities and lectures, [MDN](https://developer.mozilla.org/en-US/) Reference Documents for JavaScript syntax [JSHint](https://jshint.com/) for JavaScript validation, and various other online resources. 
+This assignment was provided by Trilogy Education Services. Code was developed based on in class activities and lectures, [MDN](https://developer.mozilla.org/en-US/) Reference Documents for JavaScript syntax, [JSHint](https://jshint.com/) for JavaScript validation, [mysqltutorial](https://www.mysqltutorial.org/basic-mysql-tutorial.aspx) for reference documentation and examples, and various other online resources. 
+
 ## License
 
 [License](LICENSE.txt)
