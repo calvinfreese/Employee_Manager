@@ -31,7 +31,7 @@ var connection = mysql.createConnection({
             console.dir(err);
             return;
         }
-        console.log(data)
+        console.log(data);
         start();
     });
 
@@ -51,7 +51,8 @@ var connection = mysql.createConnection({
           "Add a role",
           "Add a department",
           "Update employee role",
-          "View employees by manager",
+          "Update an Employee's Manager",
+          "View employees by manager",          
           "Exit"
         ],
         name: "choice"
@@ -62,7 +63,7 @@ var connection = mysql.createConnection({
             allEmployees();
             break;
           case "View all roles":
-            allRoles()
+            allRoles();
             break;
           case "View all departments":
             allDeptartments();
@@ -82,6 +83,9 @@ var connection = mysql.createConnection({
           case "View employees by manager":
             viewByManager();
             break;
+          case "Update an Employee's Manager":
+            updateEmployeeManager();
+            break;
           case 'Exit':
             process.exit();
             
@@ -97,12 +101,12 @@ function allEmployees() {
   LEFT JOIN employee as b ON a.manager_id = b.id
   INNER JOIN role ON a.role_id = role.id
   INNER JOIN department ON role.department_id = department.id
-  ORDER by a.id;`
+  ORDER by a.id;`;
   connection.query(query, function(err, res){
     if (err) throw err;
     
     //empty array to push to
-    let mainArr = []
+    let mainArr = [];
    
     // for (i = 0; i < res.length; i++) {
     //    //aligning manager_id to item in managerArr to be able to push it to the mainArr  ----- here vvvv ------
@@ -110,14 +114,14 @@ function allEmployees() {
     // }
 
     res.forEach(el => {
-      mainArr.push([el.id, el.first_name, el.last_name, el.title, el.salary, el.name, el.manager])
+      mainArr.push([el.id, el.first_name, el.last_name, el.title, el.salary, el.name, e0l.manager]);
     });
 
     console.log(' ');         
     console.table(['id', 'first_name', 'last_name', 'title', 'salary', 'department', 'manager_id'], mainArr);     
     start();
 
-  })
+  });
 }
 
 function allRoles() {
@@ -126,7 +130,7 @@ function allRoles() {
     let arr = [];
 
     res.forEach(el => {
-      arr.push([el.title, el.salary])
+      arr.push([el.title, el.salary]);
     });
     console.table(['Title','Salary'], arr);
     start();
@@ -140,35 +144,36 @@ function allDeptartments() {
     let arr = [];
 
     res.forEach(el => {
-      arr.push([el.name])
+      arr.push([el.name]);
     });
     console.table(['Department'], arr);
     start();
   });
 }
 
-//add manager names to array for selection
-// convert name to id of manager name.
+
 function addEmployee() {
   let query = `SELECT * 
   FROM role
   LEFT JOIN employee ON role.id = employee.role_id`;
-  //"SELECT * FROM employee; SELECT * FROM role"
+
   connection.query(query, function(err, res){
     let roleArr = [];
     let roleUnique = [];
     
-    let managerArr = ['None',];
+    let managerArr = ['None',]; //Set "none" to set reporting manager to null
 
     res.forEach(el => {
       if (el.first_name) {
-        managerArr.push(el.first_name + ' ' + el.last_name)
+        managerArr.push(el.first_name + ' ' + el.last_name);
       }
-    })
-    res.forEach(el => {
-      roleArr.push(el.title);
-      roleUnique = [...new Set(roleArr)]
-    })
+    });
+
+    //For each role, push obj to roleArr. From that array, only the unique entries are pushed into roleUnique
+    res.forEach(obj => {
+      roleArr.push(obj.title);
+      roleUnique = [...new Set(roleArr)];
+    });
 
     
     inquirer
@@ -197,20 +202,17 @@ function addEmployee() {
       }
     ])
     .then((answer) =>{
-  
-      
-      
-      
-      //If the string value of answer.manager matches the concat value of res.first/last_name = manager is set the value of the id of the matched response.
+
+      //If the string value of answer.manager matches the concat value of 'select .. res.first/last_name = manager from ..' the manager is set the with value of the id of the matched response.
       for (i = 0; i < res.length; i++) {
         if (answer.manager == res[i].first_name + ' ' + res[i].last_name){
-          console.log('Correct Manager Found ' + res[i].id+') ' + res[i].first_name + ' ' + res[i].last_name)
-          return addNewEmp(manager = res[i].id);           
+          console.log('Correct Manager Found ' + res[i].id+') ' + res[i].first_name + ' ' + res[i].last_name);
+          return addNewEmp(manager = res[i].id);   //run addNewEmp with the manager info passed to the mgr argument        
         } else if (answer.manager == "None"){
-          console.log('No Manager set, logging as null')
-          return addNewEmp(answer.manager = null);
+          console.log('No Manager set, logging as null');
+          return addNewEmp(answer.manager = null); //run addNewEmp with manager info of NULL passed to the mgr argument
         } else {
-          console.log('Correct Manager not Found. Iterating through again.')
+          console.log('Correct Manager not Found. Iterating through again.');
         }
       }
         
@@ -226,10 +228,10 @@ function addEmployee() {
       function(err,res){
         if (err) throw err;
         start();
-      })
+      });
       
       }
-    })
+    });
   });
 }
 
@@ -238,16 +240,17 @@ function addEmployee() {
 function addRole() {
   let query = `SELECT role.id, title, salary, department.name 
   FROM role
-  RIGHT JOIN department ON role.department_id = department.id;`
+  RIGHT JOIN department ON role.department_id = department.id;`;
   //"SELECT * FROM role; SELECT * FROM department"
   connection.query(query, function(err, res){
 
     let dept = [];
     let uniqueDept = [];
+
     //push each item to an array, and then push only the unique items to an array to remove duplicate values.
     res.forEach((el) => {
       dept.push(el.name);
-      uniqueDept = [...new Set(dept)]
+      uniqueDept = [...new Set(dept)];
     });
     
        
@@ -282,8 +285,8 @@ function addRole() {
       function(err,res){
         if (err) throw err;
         start();
-      })
-    })
+      });
+    });
   });
 }
 
@@ -305,22 +308,20 @@ function addDepartment() {
       function(err,res){
         if (err) throw err;
         start();
-      })
-    })
+      });
+    });
   });
-
- 
 }
 
 function updateEmployeeRole() {
   let query = `SELECT role.id, role.title, role.salary, employee.role_id, employee.first_name, employee.last_name, employee.manager_id
   FROM role
   LEFT JOIN employee ON role.id = employee.role_id
-  ORDER BY employee.id;`
+  ORDER BY employee.id;`;
   connection.query(query, function(err, res){
     let empl = [];
     res.forEach(el => {
-      empl.push(`${el.first_name} ${el.last_name}`)
+      empl.push(`${el.first_name} ${el.last_name}`);
     });
 
     inquirer
@@ -336,9 +337,9 @@ function updateEmployeeRole() {
      .then((answer) => {
        let employeeToUpdate = res.filter((obj) => {
           if ((`${obj.first_name} ${obj.last_name}`) === answer.employee) {
-            return obj.first_name
+            return obj.first_name;
           }
-        })
+        });
        
         console.log('employee id ', employeeToUpdate);
 
@@ -346,7 +347,7 @@ function updateEmployeeRole() {
           let roles = [];
           res.forEach(el => {
             roles.push(el.title);
-          })
+          });
           inquirer
           .prompt([
             {
@@ -360,9 +361,9 @@ function updateEmployeeRole() {
           .then((ans)=>{
             let filteredRole = response.filter((obj) => {
               if(obj.title === ans.role) {
-                return obj
+                return obj;
               }
-            })
+            });
             console.log(filteredRole);
             connection.query('UPDATE employee SET ? WHERE ?', [
               {
@@ -371,11 +372,11 @@ function updateEmployeeRole() {
               {
                 first_name: employeeToUpdate[0].first_name
               }
-            ])
+            ]);
             start();
-          })
-        })
-      })
+          });
+        });
+      });
     });
 }
 
@@ -383,8 +384,8 @@ function viewByManager() {
   connection.query('SELECT * FROM employee', function(err, res){
     let manager = [];
     res.forEach(el => {
-      manager.push(`${el.first_name} ${el.last_name}`)
-    }) 
+      manager.push(`${el.first_name} ${el.last_name}`);
+    });
     inquirer
     .prompt([
       {
@@ -398,7 +399,7 @@ function viewByManager() {
       
       let selectedManager = res.filter((obj)=>{
         if((`${obj.first_name} ${obj.last_name}`) === answer.mgr) {
-          return obj.first_name
+          return obj.first_name;
         }
       });
 
@@ -411,7 +412,7 @@ function viewByManager() {
       connection.query(query, [selectedManager[0].id], function(err, response){
         if (err) throw err;
         response.forEach(el => {
-          displayArr.push([el.id, el.first_name, el.last_name, el.manager])
+          displayArr.push([el.id, el.first_name, el.last_name, el.manager]);
         });
         console.log(' ')
         if (displayArr.length > 0){
@@ -422,11 +423,74 @@ function viewByManager() {
         }
         
         start();
-      })
-    })
-  })
+      });
+    });
+  });
 }
 
+function updateEmployeeManager() {
+  connection.query('SELECT * FROM employee', function(err, res){
+    let employees = [];
+    let managerArr = ['None',];
+    res.forEach(el => {
+      employees.push(`${el.first_name} ${el.last_name}`);
+      managerArr.push(`${el.first_name} ${el.last_name}`);
+    });
+    
+    
+    inquirer
+    .prompt([
+      {
+        type: 'rawlist',
+        message: "Which employee's manager is being updated?",
+        name: 'employeeToUpdate',
+        choices: employees
+      },
+      {
+        type: 'rawlist',
+        Message: "To whom will they be reporting?",
+        name: 'newMgr',
+        choices: managerArr
+      }
+    ])
+    .then((answer)=>{
+     
+      if (answer.newMgr == answer.employeeToUpdate){
+        console.log('User can\'t report to themselves!');
+        start();
+      } else if (answer.newMgr == 'None'){
+        let newManager = null;
+        let selectedEmployee = res.filter(obj => (`${obj.first_name} ${obj.last_name}`) == answer.employeeToUpdate);
+        let selEmp = selectedEmployee[0].id;
+       
+        setNewManager(newManager, selEmp);
+
+      } else {
+        let newManager = res.filter((obj) => (`${obj.first_name} ${obj.last_name}`) == answer.newMgr);
+        let selectedEmployee = res.filter(obj => (`${obj.first_name} ${obj.last_name}`) == answer.employeeToUpdate);
+        console.log(newManager);
+        let mgr = newManager[0].id;
+        let selEmp = selectedEmployee[0].id;
+       
+        setNewManager(mgr, selEmp);
+      }  
+
+       function setNewManager(mgr, emp){
+          connection.query('UPDATE employee SET ? WHERE ?', [
+            {
+              manager_id: mgr
+            },
+            {
+              id: emp
+            }
+          ], function(err, response){
+            if (err) throw err;
+            start();
+          });
+       } 
+    });
+  });
+}
 
 
 
