@@ -9,7 +9,7 @@
 
 ## Description
 Use this application to manage your company's employees, roles, and departments. 
-Employee Manager uses a series of CLI prompts that kicks off queries to the MySQL database "employee_db" based on the user's input. 
+Employee Manager uses a series of CLI prompts that will kick off queries to the MySQL database "employee_db" based on the user's input.
 
 #### Prompts
 1. * View all employees.
@@ -50,7 +50,7 @@ See [Screenshots](#Screenshots) for examples.
 6. * Copy table data from `./db/employeeSeed.sql` 
         * Paste into MySQL and execute only the `INSERT INTO ...  VALUES (...)` information code blocks for each table. This can be done by selecting/highlighting the desired code blocks and clicking the lightning bolt.
 
-* Start the application by running `node server.js`
+* Start the application by running `npm start`
 
 
 
