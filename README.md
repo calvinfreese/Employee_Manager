@@ -29,7 +29,6 @@ See [Screenshots](#Screenshots) for examples.
 * HTML
 * JavaScript
 * [MySQL](https://www.mysql.com/) & [MySQL Workbench](https://www.mysql.com/products/workbench/)
-* [Bootstrap](https://getbootstrap.com/)
 * [Node](https://nodejs.org/en/) and [npm](https://www.npmjs.com/package/npm)
 * [Visual Studio Code](https://code.visualstudio.com/)
 * [cmder](https://cmder.net/)
