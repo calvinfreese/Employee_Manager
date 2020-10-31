@@ -26,7 +26,6 @@ See [Screenshots](#Screenshots) for examples.
  
 ## Installation
 #### Technologies Used
-* HTML
 * JavaScript
 * [MySQL](https://www.mysql.com/) & [MySQL Workbench](https://www.mysql.com/products/workbench/)
 * [Node](https://nodejs.org/en/) and [npm](https://www.npmjs.com/package/npm)
